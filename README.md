@@ -64,12 +64,15 @@ Cased POD Filter is a web application designed to help efficiently filter, sort,
 3. Use the search box to find specific data within the filtered results
 4. Adjust the number of entries shown per page using the dropdown
 
-### Generating PDF Work Lists
+### PDF and Excel Generation
 
-1. After filtering the data as needed, click "Generate PDF Work List"
-2. The PDF will be automatically generated and downloaded
-3. The filename will include the active filters (e.g., `Cased_POD_Customer-ABC_Spine-12.pdf`)
+1. After filtering the data as needed, you have two export options:
+   - Click "Generate PDF Work List" to create and download a PDF
+   - Click "Download Excel" to export the filtered data as an Excel file
+2. Both file types will include only the filtered data
+3. The filenames will include the active filters (e.g., `Cased_POD_Customer-ABC_Spine-12.pdf`)
 4. The PDF includes a date/time stamp and formatted table of filtered orders
+5. The Excel file preserves all data in a format that can be further processed
 
 ### Starting Over
 
@@ -195,17 +198,3 @@ The "PACE Enquiry" button links to a specific URL. To change this:
    - Ensure you're using a modern, updated browser
    - Try clearing your browser cache
    - Check browser console for JavaScript errors
-
-## Contributing
-
-To contribute to this project:
-
-1. Fork the repository
-2. Create a new branch for your feature
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-## License
-
-Copyright © 2025. All rights reserved.

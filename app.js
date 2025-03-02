@@ -15,6 +15,7 @@ const tableHeader = document.getElementById('tableHeader');
 const tableBody = document.getElementById('tableBody');
 const filterButtonsContainer = document.getElementById('filterButtonsContainer');
 const generatePdfButton = document.getElementById('generatePdfButton');
+const downloadExcelButton = document.getElementById('downloadExcelButton');
 const resetFiltersButton = document.getElementById('resetFiltersButton');
 const sortSpineButton = document.getElementById('sortSpineButton');
 const backToUploadButton = document.getElementById('backToUploadButton');
@@ -40,6 +41,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Generate PDF button click event
     generatePdfButton.addEventListener('click', generatePDF);
+    
+    // Download Excel button click event
+    downloadExcelButton.addEventListener('click', downloadExcel);
     
     // Reset filters button click event
     resetFiltersButton.addEventListener('click', resetFilters);
@@ -868,4 +872,100 @@ function resetUI() {
     uploadArea.classList.remove('hidden');
     tableContainer.classList.add('hidden');
     filterControls.classList.add('hidden');
+}
+
+// Download Excel function
+function downloadExcel() {
+    try {
+        console.log("Starting Excel download");
+        
+        // Show loading indicator
+        loadingIndicator.classList.remove('hidden');
+        
+        // Get DataTable instance
+        const table = $('#excelDataTable').DataTable();
+        
+        // Get visible data (after filtering)
+        const rows = [];
+        const headers = [];
+        
+        // Get headers
+        table.columns().every(function(index) {
+            const headerText = $(table.column(index).header()).text().trim();
+            headers.push(headerText);
+        });
+        
+        // Add header row
+        rows.push(headers);
+        
+        // Get data rows
+        table.rows({ search: 'applied' }).every(function(rowIdx) {
+            const rowData = [];
+            table.columns().every(function(colIdx) {
+                rowData.push(table.cell(rowIdx, colIdx).data());
+            });
+            rows.push(rowData);
+        });
+        
+        if (rows.length <= 1) { // Only header row
+            alert('No data to export. Please adjust your filters.');
+            loadingIndicator.classList.add('hidden');
+            return;
+        }
+        
+        // Create workbook and worksheet
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet(rows);
+        
+        // Generate filename with filter information
+        let filename = 'Cased_POD';
+        
+        // Collect filters for filename - use active filters from display
+        const activeFilterBadges = document.querySelectorAll('.filter-badge');
+        console.log("Active filter badges found:", activeFilterBadges.length);
+        
+        const filenameFilters = [];
+        
+        activeFilterBadges.forEach(badge => {
+            const filterText = badge.textContent.trim();
+            console.log("Filter badge text:", filterText);
+            
+            // Extract column and value (format is "Column: Value")
+            const parts = filterText.split(':');
+            if (parts.length === 2) {
+                const columnName = parts[0].trim().replace(/\s+/g, '');
+                const filterValue = parts[1].trim().replace(/\s+/g, '_');
+                filenameFilters.push(`${columnName}-${filterValue}`);
+                console.log("Added to filename:", `${columnName}-${filterValue}`);
+            }
+        });
+        
+        // Create filename with filter information
+        if (filenameFilters.length > 0) {
+            // Add filters to filename
+            filename += '_' + filenameFilters.join('_');
+            console.log("Filename with filters:", filename);
+        } else {
+            filename += '_AllOrders';
+            console.log("No filters applied, using default filename:", filename);
+        }
+        filename += '.xlsx';
+        
+        // Add worksheet to workbook
+        XLSX.utils.book_append_sheet(wb, ws, 'Filtered Orders');
+        
+        // Save workbook and trigger download
+        XLSX.writeFile(wb, filename);
+        
+        // Hide loading indicator
+        loadingIndicator.classList.add('hidden');
+        
+        console.log('Excel file generated and downloaded:', filename);
+    } catch (error) {
+        // Hide loading indicator
+        loadingIndicator.classList.add('hidden');
+        
+        console.error('Error generating Excel file:', error);
+        alert('Error generating Excel file: ' + error.message);
+    }
 }
